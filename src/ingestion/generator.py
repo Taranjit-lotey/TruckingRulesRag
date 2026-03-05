@@ -15,7 +15,7 @@ def build_context(chunks: list[dict]) -> str:
 def generate_answer(query: str, chunks: list[dict]) -> str:
     """
     Generate an answer using the OpenAI Chat API with retrieved context.
-    Uses prompt engineering to ground the response in Sikh scripture.
+    Uses prompt engineering to ground the response in Trucking rules.
     """
     context = build_context(chunks)
 
