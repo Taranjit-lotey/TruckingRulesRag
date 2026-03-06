@@ -16,3 +16,26 @@ def get_chroma_collection():
     )
     return collection
 
+
+def embed_and_store(chunks: list[dict]) -> None:
+    """Embed chunks using OpenAI and store them in ChromaDB."""
+    collection = get_chroma_collection()
+
+    texts = [chunk["text"] for chunk in chunks]
+    ids = [f"{chunk['filename']}_chunk_{chunk['chunk_index']}" for chunk in chunks]
+    metadatas = [
+        {"source": chunk["source"], "filename": chunk["filename"], "chunk_index": chunk["chunk_index"]}
+        for chunk in chunks
+    ]
+
+    # Upsert in batches of 100 to avoid rate limits
+    batch_size = 100
+    for i in range(0, len(texts), batch_size):
+        collection.upsert(
+            documents=texts[i:i + batch_size],
+            ids=ids[i:i + batch_size],
+            metadatas=metadatas[i:i + batch_size]
+        )
+        print(f"  Upserted batch {i // batch_size + 1} ({min(i + batch_size, len(texts))}/{len(texts)} chunks)")
+
+    print(f"Stored {len(chunks)} chunks in ChromaDB collection '{CHROMA_COLLECTION_NAME}'.")
